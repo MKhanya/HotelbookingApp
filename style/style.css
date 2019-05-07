@@ -1,0 +1,16 @@
+body{
+    background-image: url("images/vacation.jpeg");
+    text-align: center;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+form{
+    font-size: 20px
+}
+
+h2{
+    font-family: 'Just Another Hand', cursive;
+    font-size: 40px;
+}
