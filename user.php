@@ -1,7 +1,8 @@
 <?php
-//login 
-define('DB_SERVER', 'localhost');
-define('DB_USERNAME', 'root');
-define('DB_PASSWORD','');
-define('DB_NAME','bookings');
+
+define ('DB_SERVER','localhost');
+define ('DB_USERNAME','kay');
+define ('DB_PASSWORD','kaypass');
+define ('DB_NAME','bookings');
+
 ?>

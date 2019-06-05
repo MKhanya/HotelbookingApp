@@ -3,17 +3,6 @@
 session_start();
 ini_set('display_errors', 1);
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
     <?php
      require_once "connect.php";
    
@@ -29,6 +18,20 @@ ini_set('display_errors', 1);
         $conn ->query($sql);
         echo $conn-> error;
     ?>
+
+    
+
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
 
 <form class="form-signin" role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>"
 method="post">
@@ -49,7 +52,7 @@ method="post">
 <option value="The Panther ">The Panther</option>
 </select><br>
 
-<button type="submit" name="submit">Book Now</button><br>
+<button type="submit" name="submit">Book Your Stay</button><br>
 </form>
 
 <?php
@@ -61,37 +64,56 @@ if(isset($_POST['submit'])){
     $_SESSION['hotel']=$_POST['hotel'];
      $_SESSION['checkin']=$_POST['checkin'];
     $_SESSION['checkout']=$_POST['checkout'];
-}
+
 
 //amount of days the user stayed
-    $datetime1 = new datetime($_SESSION['checkin']);
-    $datetime2 = new datetime($_SESSION['checkout']);
-    $interval = $datetime1->diff($datetime2);
+$datetime1 = new DateTime($_SESSION['checkin']);
+$datetime2 = new DateTime($_SESSION['checkout']);
+$interval = $datetime1->diff($datetime2);
 
-    //switch to adjust cost
-$daysBooked = $interval->format('%d');
+$checkInStamp = strtotime($_SESSION['checkin']);
+$checkOutStamp = strtotime($_SESSION['checkout']);
+// echo $checkInStamp . '<br>';
+// echo $checkOutStamp;
+if ($checkInStamp - $checkOutStamp > 86400 || $checkInStamp == $checkOutStamp) {
+    header("Location: ?error=timestamp");
+    exit;
+    }
+
+$interval->format('%d');
+
+$daysbooked = $interval->format('%d');
 $value;
 
-switch($_POST['hotel']){
-case "Raddison Hotel":
-$value=$daysBooked * 750;
-break;
+switch(isset($_SESSION['hotel'])){
+  case 'Holiday Inn':
+  $value = $daysbooked * 2875;
+  break;
 
-case "Bluemoon":
-$value=$daysBooked * 800;
-break;
+  case 'Radison':
+  $value = $daysbooked * 1998;
+  break;
 
-case "Newtown";
-$value=$daysBooked * 500;
-break;
+  case 'City Lodge':
+  $value = $daysbooked * 3765;
+  break;
 
-case "The Panther";
-$value=$daysBooked * 395;
-break;
+  case 'Town Lodge':
+  $value = $daysbooked * 7651;
+  break;
 
-default:
-echo 'invalid booking';
+  default:
+  return "ERROR!";
 }
+//check for duplicate bookings///
+/*function duplicates ($param1, $param2){
+    $this ->firstname = $param1;
+    $this ->surname = $param2;
+}*/
+
+//create source
+/*if ($result = $this->conn->query("SELECT hotel, checkin, checkout FROM $this->tableName
+WHERE firstname = '$this->firstname' && surname = '$this -> surname'"))*/
 
 //display booking info for user
 echo "<div class='feedback'> <br> Firstname: ". $_SESSION['firstname'] . "<br>
@@ -99,12 +121,14 @@ echo "<div class='feedback'> <br> Firstname: ". $_SESSION['firstname'] . "<br>
     "<br> Checkin: " . $_SESSION['checkin'].
     "<br> Checkout: " . $_SESSION['checkout'].
     "<br> Hotel: " . $_SESSION['hotel'].
-    "<br>" . $interval->format('%r
-    %a days') . "<br> Total R " . $value . "</div>";
+    "<br> Total: R " . $value . "</div>";
+     
 
-echo "<form class='form-inline' role='form' action".
-htmlspecialchars($_SERVER["PHP_SELF"]).
-"method='post'><input type='submit' name='confirm'></form>";
+    echo "<form role='form' action=" . htmlspecialchars($_SERVER['PHP_SELF']) . " method='post'>
+    <button name='confirm' type='submit'> Confirm </button> </form>".'</div>';
+
+}
+
 
 if(isset($_POST['confirm'])){
     $stmt = $conn ->prepare("INSERT INTO bookings(firstname,surname,hotel,checkin,checkout)
@@ -118,8 +142,22 @@ if(isset($_POST['confirm'])){
     $checkin = $_SESSION['checkin'];
     $checkout = $_SESSION['checkout'];
     $stmt -> execute();
- echo "booking confirmed";
+        echo "BOOKING CONFIRMED!";
 }
+
 ?>
+<?php
+        if (isset($_GET['error']) && $_GET['error'] == 'timestamp') {
+    ?>
+        <div class='panel panel-default'>
+            <h3>
+                You must select at least  1 day 
+            </h3>
+            </div>
+    <?php
+        }
+    ?>
+
+
 </body>
 </html>
